@@ -133,3 +133,45 @@ formCari.addEventListener("submit", function (e) {
   });
 });
 
+// ================= SMOOTH SCROLL (VANILLA) =================
+let targetScroll = window.scrollY;
+let currentScroll = window.scrollY;
+let isAnimating = false;
+
+// Sinkron kalau ada scroll dari luar (klik anchor, scrollIntoView, dll)
+window.addEventListener("scroll", function () {
+  if (!isAnimating) {
+    targetScroll = window.scrollY;
+    currentScroll = window.scrollY;
+  }
+});
+
+// Wheel di-intercept: gak langsung lompat, tapi "nabuh" tujuan scroll
+// lalu posisi halaman dikejar per frame (itulah efek melayangnya)
+window.addEventListener("wheel", function (e) {
+  e.preventDefault();
+
+  const maxScroll =
+    document.documentElement.scrollHeight - window.innerHeight;
+  targetScroll = Math.max(0, Math.min(targetScroll + e.deltaY, maxScroll));
+
+  if (!isAnimating) {
+    isAnimating = true;
+    document.documentElement.style.scrollBehavior = "auto";
+    requestAnimationFrame(animasiScroll);
+  }
+}, { passive: false });
+
+function animasiScroll() {
+  // 0.1 = tingkat kehalusan; makin kecil = makin melayang
+  currentScroll += (targetScroll - currentScroll) * 0.1;
+  window.scrollTo(0, currentScroll);
+
+  if (Math.abs(targetScroll - currentScroll) > 1) {
+    requestAnimationFrame(animasiScroll);
+  } else {
+    currentScroll = targetScroll;
+    isAnimating = false;
+    document.documentElement.style.scrollBehavior = "";
+  }
+}
