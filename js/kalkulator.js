@@ -398,11 +398,11 @@ document.getElementById("btn-hitung").addEventListener("click", () => {
     )
     .join("");
 
-  // Tampilkan tombol konsultasi AI (muncul bareng result-section)
+  // Munculkan SEMUA sekaligus (banner + tombol konsultasi + panah)
+  document.getElementById("banner-wrap").classList.remove("hidden");
   document.getElementById("btn-konsultasi").classList.remove("hidden");
-
-  // Munculkan panah ke bawah (JANGAN auto-scroll — user yang tentukan sendiri)
   document.getElementById("btn-arrow-down").classList.remove("hidden");
+  
 });
 
 // ================= TOMBOL "KONSULTASI AI CHATBOT" =================
