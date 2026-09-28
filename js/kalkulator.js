@@ -17,7 +17,7 @@ window.addEventListener("load", function () {
   window.scrollTo({ top: 0, left: 0, behavior: "instant" });
 });
 
-// ================= NAVBAR SCROLL EFFECT (sama seperti gizy.js) =================
+// ================= NAVBAR SCROLL EFFECT =================
 const mainNav = document.getElementById("main-nav");
 const navContainer = document.getElementById("nav-container");
 const navLogo = document.getElementById("nav-logo");
@@ -25,7 +25,7 @@ const navItems = document.querySelectorAll(".nav-item");
 const navToggle = document.getElementById("nav-toggle");
 const navToggleIcon = document.getElementById("nav-toggle-icon");
 const mobileMenu = document.getElementById("mobile-menu");
-const mobilePanel = document.getElementById("mobile-panel"); // panel menu putih (di dalam layer gelap)
+const mobilePanel = document.getElementById("mobile-panel");
 
 window.addEventListener("scroll", function () {
   if (window.scrollY > 70) {
@@ -70,13 +70,10 @@ window.addEventListener("scroll", function () {
 });
 
 // ================= MENU MOBILE (OVERLAY GELAP) =================
-// Layer gelap = #mobile-menu (nutupin seluruh layar)
-// Panel putih = #mobile-panel (daftar menu, turun dari atas pas dibuka)
 function bukaMenuMobile() {
-  mobileMenu.classList.remove("hidden");            // layer gelap muncul
-  document.body.classList.add("overflow-hidden");   // halaman belakang gak bisa di-scroll
+  mobileMenu.classList.remove("hidden");
+  document.body.classList.add("overflow-hidden");
 
-  // sedikit jeda (satu frame) supaya transisi turun-nya terbaca browser
   requestAnimationFrame(() => {
     mobilePanel.classList.remove("-translate-y-full");
     mobilePanel.classList.add("translate-y-0");
@@ -87,14 +84,12 @@ function bukaMenuMobile() {
 }
 
 function tutupMenuMobile() {
-  mobilePanel.classList.add("-translate-y-full");   // panel naik keluar layar
+  mobilePanel.classList.add("-translate-y-full");
   mobilePanel.classList.remove("translate-y-0");
   document.body.classList.remove("overflow-hidden");
   navToggleIcon.classList.replace("fa-xmark", "fa-bars");
   navToggle.setAttribute("aria-expanded", "false");
 
-  // layer gelapnya baru dihilangkan SETELAH panel selesai naik (300ms,
-  // sama dengan duration-300 di HTML-nya)
   setTimeout(() => {
     mobileMenu.classList.add("hidden");
   }, 300);
@@ -109,14 +104,12 @@ navToggle.addEventListener("click", function () {
   }
 });
 
-// Klik link mana pun → tutup menunya dulu, baru pindah halaman
 document.querySelectorAll(".mobile-link").forEach(function (link) {
   link.addEventListener("click", function () {
     tutupMenuMobile();
   });
 });
 
-// Bonus: klik area GELAP di luar panel → tutup menu juga
 mobileMenu.addEventListener("click", function (e) {
   if (!mobilePanel.contains(e.target)) {
     tutupMenuMobile();
@@ -134,21 +127,16 @@ document.querySelectorAll(".scroll-top-link").forEach(function (link) {
 // ================= LOGIKA KALKULATOR BMI =================
 let selectedGender = "L";
 
-// ----- TOMBOL GENDER (IKON BULAT, BUKAN TOMBOL TEKS) -----
-// Dua "paket" class ini ditukar bolak-balik: kalau satu paket masuk,
-// paket satunya pasti dikeluarkan dulu. Jadi gak akan ada bentrok
-// (misalnya warna latar lama nempel bareng warna latar baru).
+// ----- TOMBOL GENDER -----
 const genderActiveClasses = ["bg-[#FFAEAF]", "border-[#FF8385]", "text-[#FF8385]"];
 const genderInactiveClasses = ["bg-white", "border-black/[0.09]", "text-[#6B6B6B]"];
 
 document.querySelectorAll(".gender-btn").forEach((btn) => {
   btn.addEventListener("click", () => {
-    // matikan semua tombol dulu -> pasang paket "tidak aktif" ke semuanya
     document.querySelectorAll(".gender-btn").forEach((b) => {
       b.classList.remove(...genderActiveClasses, "active");
       b.classList.add(...genderInactiveClasses);
     });
-    // baru nyalakan tombol yang diklik -> pasang paket "aktif"
     btn.classList.remove(...genderInactiveClasses);
     btn.classList.add(...genderActiveClasses, "active");
     selectedGender = btn.dataset.gender;
@@ -156,10 +144,6 @@ document.querySelectorAll(".gender-btn").forEach((btn) => {
 });
 
 // ----- GAMBAR ILUSTRASI BADAN SESUAI KATEGORI BMI -----
-// GANTI value (path) di bawah ini dengan path gambar kamu sendiri.
-// "Sangat Kurus" & "Kurus" sengaja dibikin sama-sama pakai gambar "kurus"
-// -- kalau kamu punya gambar terpisah untuk masing-masing, tinggal
-// pisahkan value-nya jadi 2 baris berbeda.
 const gambarBadan = {
   "Sangat Kurus": "../assets/badan/badan-kurus.svg",
   "Kurus": "../assets/badan/badan-kurus.svg",
@@ -328,13 +312,12 @@ function saranPerBagian(kat) {
 }
 
 document.getElementById("btn-hitung").addEventListener("click", () => {
+  // Hasil & banner pasti terlihat penuh setelah hitung (gak ada setengah-setengah)
+  document.getElementById("result-section").style.display = "block";
+
   const age = parseFloat(document.getElementById("input-age").value);
   const height = parseFloat(document.getElementById("input-height").value);
   const weight = parseFloat(document.getElementById("input-weight").value);
-  // Field "Tingkat Aktivitas Harian" sudah dihapus dari tampilan.
-  // Supaya "Kebutuhan Kalori Harian" tetap bisa dihitung, dipakai
-  // angka tetap 1.55 (setara "Sedang, olahraga 3-5x/minggu"),
-  // yaitu nilai yang dulu jadi pilihan default di dropdown-nya.
   const activity = 1.55;
 
   if (!age || !height || !weight) {
@@ -348,7 +331,6 @@ document.getElementById("btn-hitung").addEventListener("click", () => {
   const bmr = hitungBMR(selectedGender, weight, height, age);
   const totalKalori = Math.round(bmr * activity);
 
-  // proporsi makro disesuaikan kategori (dalam AMDR sehat, condong ke pola AKG Indonesia)
   let pKarbo, pProtein, pLemak;
   if (kat.label === "Sangat Kurus" || kat.label === "Kurus") {
     pKarbo = 55;
@@ -373,15 +355,14 @@ document.getElementById("btn-hitung").addEventListener("click", () => {
 
   const badgeEl = document.getElementById("out-badge");
   badgeEl.textContent = kat.label;
-  badgeEl.style.color = kat.color; // cuma warna teksnya, tanpa background pill
+  badgeEl.style.color = kat.color;
 
-  // Ganti gambar ilustrasi badan sesuai kategori
   const bodyImg = document.getElementById("body-silhouette");
   if (gambarBadan[kat.label]) {
     bodyImg.src = gambarBadan[kat.label];
   }
 
-  // ----- UPDATE BANNER PENJELASAN KATEGORI (di bawah kartu form) -----
+  // ----- UPDATE BANNER PENJELASAN KATEGORI -----
   document.getElementById("out-bmi-banner").textContent = bmi.toFixed(1);
 
   const badgeBannerEl = document.getElementById("out-badge-banner");
@@ -417,8 +398,8 @@ document.getElementById("btn-hitung").addEventListener("click", () => {
     )
     .join("");
 
-      // Tampilkan tombol konsultasi AI (muncul bareng result-section)  ← ★ INI
-    document.getElementById("btn-konsultasi").classList.remove("hidden");
+  // Tampilkan tombol konsultasi AI (muncul bareng result-section)
+  document.getElementById("btn-konsultasi").classList.remove("hidden");
 
   // Munculkan panah ke bawah (JANGAN auto-scroll — user yang tentukan sendiri)
   document.getElementById("btn-arrow-down").classList.remove("hidden");
@@ -434,17 +415,25 @@ if (btnKonsultasi) {
 
 // ================= PANAH KE BAWAH → SCROLL SEDIKIT KE BANNER =================
 document.getElementById("btn-arrow-down").addEventListener("click", function () {
-  // scroll ke banner, dan banner ditaruh di TENGAH layar (block: "center")
-  // → gak terlalu kebawah: silhouette & form masih keliatan di bagian atas
-
-    document.getElementById("result-section").style.display = "block";
-
-
+  // banner ditaruh di TENGAH layar → silhouette & form masih keliatan di bagian atas
   document.getElementById("out-bmi-banner").scrollIntoView({
     behavior: "smooth",
     block: "center",
   });
+});
 
-  // Tugasnya selesai → sembunyikan lagi
-  this.classList.add("hidden");
+// ================= PANAH AUTO-SEMBUNYI SAAT USER SCROLL KE BAWAH =================
+// Begitu user scroll turun melewati form (banner sudah masuk layar),
+// panah dianggap gak dibutuhkan lagi → hilang
+window.addEventListener("scroll", function () {
+  const arrow = document.getElementById("btn-arrow-down");
+  if (arrow.classList.contains("hidden")) return;
+
+  const banner = document.getElementById("out-bmi-banner");
+  const bannerTop = banner.getBoundingClientRect().top;
+
+  // banner sudah mencapai 60% tinggi layar dari atas → sembunyikan panah
+  if (bannerTop < window.innerHeight * 0.6) {
+    arrow.classList.add("hidden");
+  }
 });
